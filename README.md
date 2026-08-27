@@ -1,16 +1,24 @@
 <p align="center">
   <picture>
     <source media="(max-width: 680px)" srcset="./assets/readme/hero-mobile.png">
-    <img src="./assets/readme/hero.png" width="100%" alt="ZCode Session: route work from any compatible harness to the designated ZCode Harness">
+    <img src="./assets/readme/hero.png" width="100%" alt="Any-to-ZCode: route work from any compatible harness to local ZCode sessions">
   </picture>
 </p>
 
 <p align="center">
-  <a href="https://github.com/ZiChenWang114514/codex-zcode-session/actions/workflows/ci.yml"><img src="https://github.com/ZiChenWang114514/codex-zcode-session/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <strong>English</strong> · <a href="./README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/ZiChenWang114514/Any-to-ZCode/actions/workflows/ci.yml"><img src="https://github.com/ZiChenWang114514/Any-to-ZCode/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   · Windows · Python 3.10+ · MIT
 </p>
 
-`codex-zcode-session` gives Codex a small, inspectable interface for local ZCode CLI work: check the active model without exposing credentials, run a headless task in an explicit directory, and resume one exact `sess_...` conversation.
+# Any-to-ZCode
+
+Connect any compatible coding harness to local ZCode CLI sessions. The adapter reports the active GLM route without printing credentials, runs a headless task in an explicit directory, and resumes one exact `sess_...` conversation.
+
+This repository is a local session adapter: a Python CLI, plus a Codex Skill wrapper. It is independent of Z.ai and of the `zcode-app-cli` maintainers.
 
 ## What is verified
 
@@ -22,19 +30,19 @@
 | Multimodal declaration | GLM-5.3-Flash declares image, PDF and video input |
 | Live GLM response | Requires a configured Coding Plan key; catalog visibility alone does not prove access |
 
-## Why this Skill exists
+## What it does
 
-- **Exact sessions** — resume by full session ID and keep the original working directory.
-- **Readable status** — see versions, selected models, multimodal entries and setup state as JSON.
-- **Controlled execution** — choose `plan`, `build`, `edit` or `yolo` for each headless request.
-- **Isolated verification** — the smoke test uses a temporary `ZCODE_HOME` and removes its test data afterward.
-- **Prompt files** — keep long, multilingual instructions in UTF-8 files instead of wrestling with shell quoting.
+- Resume by full session ID and keep the original working directory. The helper does not use ZCode's "latest session" shortcut.
+- Return versions, selected models, multimodal entries, and setup state as JSON.
+- Choose `plan`, `build`, `edit`, or `yolo` for each headless request.
+- Run the smoke test in a temporary `ZCODE_HOME` and remove that test data afterward.
+- Accept long instructions from UTF-8 prompt files instead of shell quoting.
 
-## Quick start
+Codex, Claude Code, Grok Build, and other tools can call the Python CLI. Codex users can also invoke `$codex-zcode-session` after installing the Skill.
 
-### 1. Install ZCode CLI
+## Install
 
-This Skill targets [`zcode-app-cli`](https://github.com/kingsword09/zcode-cli), an unofficial terminal client for the official agent runtime distributed with ZCode Desktop.
+This adapter targets [`zcode-app-cli`](https://github.com/kingsword09/zcode-cli), an unofficial terminal client for the official agent runtime shipped with ZCode Desktop.
 
 ```powershell
 npm install -g zcode-app-cli@latest
@@ -43,21 +51,21 @@ zcode --version
 
 Node.js 22.19 or newer is required. On Windows, open `zcode` once and configure a Z.AI or BigModel Coding Plan key through the masked setup interface.
 
-### 2. Install the Skill
-
 ```powershell
-git clone https://github.com/ZiChenWang114514/codex-zcode-session `
+git clone https://github.com/ZiChenWang114514/Any-to-ZCode.git `
   "$env:USERPROFILE\.codex\skills\codex-zcode-session"
 ```
 
-### 3. Inspect before prompting
+The clone destination is the Codex Skill id, `codex-zcode-session`. Other harnesses can run `scripts/zcode_session.py` directly.
+
+## First use
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\codex-zcode-session\scripts\zcode_session.py" `
   status --json
 ```
 
-A useful first result contains:
+A useful first result looks like:
 
 ```json
 {
@@ -68,9 +76,7 @@ A useful first result contains:
 }
 ```
 
-`model_access_configured: false` means the catalog is installed but no live model request should be reported as successful yet.
-
-## Run a task
+`model_access_configured: false` means the catalog is installed, but a live model request should not be reported as successful yet.
 
 Use `plan` for read-only analysis:
 
@@ -95,11 +101,9 @@ Continue the same conversation with its complete ID:
 ```powershell
 python .\scripts\zcode_session.py invoke `
   --dir C:\path\to\repo `
-  --session-id sess_example `
+  --session-id sess_xxxxxxxx `
   --prompt-file .\phase-2.txt --json
 ```
-
-The wrapper deliberately does not use ZCode's “latest session” shortcut.
 
 ## Model routing
 
@@ -109,42 +113,47 @@ The wrapper deliberately does not use ZCode's “latest session” shortcut.
 | Lightweight and multimodal work | `zai/glm-5.3-flash` | Text, image, PDF, video |
 | Compatibility option | `zai/glm-5.2` | Text |
 
-Changing the user configuration affects newly created sessions. A resumed session may retain the model stored in its history.
+Changing the user configuration affects newly created sessions. A resumed session may keep the model stored in its history.
 
-## Verification workflow
+## Verification
 
-1. Run `status --json` and confirm the executable, model IDs and credential state.
-2. Review the target repository instructions, current changes and test commands.
-3. Start `invoke` with an explicit directory, prompt and permission mode.
+1. Run `status --json` and confirm the executable, model IDs, and credential state.
+2. Review the target repository instructions, current changes, and test commands.
+3. Start `invoke` with an explicit directory, prompt, and permission mode.
 4. Inspect the actual file changes and run the repository's own tests.
 5. Continue only with the exact session ID returned by the first call.
 
-After model access is configured, run an isolated live check:
+After model access is configured:
 
 ```powershell
 python .\scripts\zcode_session.py smoke-test `
-  --dir C:\safe\workspace --json
+  --dir C:\path\to\safe-dir --json
 ```
 
-## Repository map
+## Using it from a coding agent
 
 ```text
-codex-zcode-session/
-├── SKILL.md                       Codex operating instructions
-├── scripts/zcode_session.py       status, invoke and smoke-test commands
-├── references/defaults.json       model and timeout defaults
-├── references/operation-protocol.md
-├── agents/openai.yaml             Codex UI metadata
-└── tests/                          wrapper unit tests
+Use $codex-zcode-session in C:\path\to\repo.
+Check status, then start a plan-mode session that explains the failing tests.
+Do not edit files.
 ```
 
 ## Safety notes
 
 - Credentials are checked only as present or absent; their values are never printed.
 - Timeout cleanup targets only the process started by the wrapper.
-- The Skill does not commit, push, publish or alter unrelated files.
-- A successful CLI exit still requires inspection of the repository changes and tests.
+- The adapter does not commit, push, publish, or alter unrelated files.
+- A successful CLI exit still requires inspection of repository changes and tests.
 
-## License and status
+## Related adapters
 
-MIT licensed. This project is independent of Z.ai and the `zcode-app-cli` maintainers. ZCode CLI behavior can change with the embedded runtime, so re-run `status` and the smoke test after upgrades.
+| Repository | Target |
+| --- | --- |
+| [Any-to-OpenCode](https://github.com/ZiChenWang114514/Any-to-OpenCode) | OpenCode |
+| [Any-to-Grok-Build](https://github.com/ZiChenWang114514/Any-to-Grok-Build) | Grok Build |
+| [Any-to-Kimi-Code](https://github.com/ZiChenWang114514/Any-to-Kimi-Code) | Kimi Code |
+| [Any-to-DeepSeek-Harness](https://github.com/ZiChenWang114514/Any-to-DeepSeek-Harness) | DeepSeek Harness |
+
+## License
+
+[MIT](./LICENSE). ZCode CLI behavior can change with the embedded runtime, so re-run `status` and the smoke test after upgrades.
