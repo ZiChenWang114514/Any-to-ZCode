@@ -1,0 +1,4 @@
+interface:
+  display_name: "ZCode Session"
+  short_description: "Run and inspect local ZCode GLM sessions"
+  default_prompt: "Use $codex-zcode-session to inspect ZCode and run this task in the specified workspace."

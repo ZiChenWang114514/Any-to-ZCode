@@ -1,0 +1,8 @@
+{
+  "main_model": "zai/glm-5.3",
+  "lite_model": "zai/glm-5.3-flash",
+  "compatible_models": ["zai/glm-5.2", "zai/glm-5.3", "zai/glm-5.3-flash"],
+  "invoke_timeout_seconds": 900,
+  "smoke_timeout_seconds": 240,
+  "smoke_reply": "ZCODE_SMOKE_OK"
+}
