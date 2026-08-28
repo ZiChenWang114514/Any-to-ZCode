@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(max-width: 680px)" srcset="./assets/readme/hero-mobile.png">
-    <img src="./assets/readme/hero.png" width="100%" alt="Any-to-ZCode：把任意兼容的编码助手接到本机 ZCode 会话">
+    <source media="(max-width: 680px)" srcset="./assets/readme/hero-mobile.svg">
+    <img src="./assets/readme/hero.svg" width="100%" alt="Any-to-ZCode：把任意兼容编码助手接到准确的 ZCode 会话">
   </picture>
 </p>
 
@@ -144,6 +144,10 @@ python .\scripts\zcode_session.py smoke-test `
 - 适配器不会自行提交、推送、发布或改动无关文件。
 - CLI 成功退出后，仍需检查仓库改动和测试结果。
 
+## 机器可读结果
+
+每个命令都支持 `--json`。统一字段包括 `schema_version`、`ok`、`target`、`command`、`provider`、`workdir`、`session_id`、`requested_model`、`actual_model`、`result`、`warnings` 和 `error`，并保留各适配器自己的验证信息。
+
 ## 同系列适配器
 
 | 仓库 | 目标 |
@@ -152,6 +156,8 @@ python .\scripts\zcode_session.py smoke-test `
 | [Any-to-Grok-Build](https://github.com/ZiChenWang114514/Any-to-Grok-Build) | Grok Build |
 | [Any-to-Kimi-Code](https://github.com/ZiChenWang114514/Any-to-Kimi-Code) | Kimi Code |
 | [Any-to-DeepSeek-Harness](https://github.com/ZiChenWang114514/Any-to-DeepSeek-Harness) | DeepSeek Harness |
+| [Any-to-Codex](https://github.com/ZiChenWang114514/Any-to-Codex) | Codex CLI |
+| [Any-to-Claude-Code](https://github.com/ZiChenWang114514/Any-to-Claude-Code) | Claude Code |
 
 ## 许可证
 

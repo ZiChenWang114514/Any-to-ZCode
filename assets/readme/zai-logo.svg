@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Z.AI mark</title>
+  <desc id="desc">Compact vector mark for Z.AI.</desc>
+  <circle cx="120" cy="120" r="104" fill="none" stroke="currentColor" stroke-width="24"/>
+  <path d="M72 72h104L76 168h96" fill="none" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

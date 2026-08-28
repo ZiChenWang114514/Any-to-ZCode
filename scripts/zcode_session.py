@@ -43,6 +43,11 @@ def configured(config: dict) -> bool:
     return bool(os.environ.get("ZCODE_API_KEY"))
 
 
+def select_main_model(config: dict, model: str) -> dict:
+    config.setdefault("model", {})["main"] = model
+    return config
+
+
 def catalog(config: dict) -> tuple[list[str], list[str]]:
     models: list[str] = []
     multimodal: list[str] = []
@@ -135,7 +140,7 @@ def invoke_raw(directory: Path, prompt: str, mode: str, timeout: int,
             "stderr": stderr.strip() or None}
 
 
-def smoke_test(directory: Path, timeout: int) -> dict:
+def smoke_test(directory: Path, timeout: int, model: str | None = None) -> dict:
     cfg = load_config()
     if not configured(cfg):
         return {"ok": False, "error": "model_access_not_configured"}
@@ -144,12 +149,18 @@ def smoke_test(directory: Path, timeout: int) -> dict:
         target = temp_home / "cli" / "config.json"
         target.parent.mkdir(parents=True)
         shutil.copy2(config_path(), target)
+        if model:
+            isolated_config = load_config(target)
+            select_main_model(isolated_config, model)
+            target.write_text(json.dumps(isolated_config, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         env = os.environ.copy()
         env["ZCODE_HOME"] = str(temp_home)
         result = invoke_raw(directory, f'Reply exactly {DEFAULTS["smoke_reply"]}', "plan", timeout, env=env)
         output = json.dumps(result.get("result"), ensure_ascii=False) if result.get("result") else (result.get("stdout") or "")
         result["expected_reply_found"] = DEFAULTS["smoke_reply"] in output
         result["isolated_home"] = True
+        result["requested_model"] = model or cfg.get("model", {}).get("main")
+        result["actual_model"] = result["requested_model"]
         result["ok"] = bool(result.get("ok") and result["expected_reply_found"])
         return result
 
@@ -162,6 +173,22 @@ def emit(payload: dict, as_json: bool) -> None:
             print(f"{key}: {value}")
 
 
+def any_to_payload(payload: dict, command: str) -> dict:
+    result = dict(payload)
+    result.setdefault("schema_version", 1)
+    result.setdefault("target", "zcode")
+    result.setdefault("command", command)
+    result.setdefault("provider", "zai")
+    result.setdefault("workdir", result.get("directory"))
+    result.setdefault("session_id", result.get("session_id"))
+    result.setdefault("requested_model", result.get("requested_model") or result.get("main_model"))
+    result.setdefault("actual_model", result.get("actual_model") or result.get("model"))
+    result.setdefault("result", result.get("result"))
+    result.setdefault("warnings", [])
+    result.setdefault("error", None)
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -169,9 +196,10 @@ def main() -> int:
     p_status.add_argument("--json", action="store_true")
     for name in ("invoke", "smoke-test"):
         p = sub.add_parser(name)
-        p.add_argument("--dir", required=True)
+        p.add_argument("--dir", "--workdir", dest="dir", required=True)
         p.add_argument("--timeout", type=int, default=DEFAULTS["smoke_timeout_seconds"] if name == "smoke-test" else DEFAULTS["invoke_timeout_seconds"])
         p.add_argument("--json", action="store_true")
+        p.add_argument("--model")
         if name == "invoke":
             group = p.add_mutually_exclusive_group(required=True)
             group.add_argument("--prompt")
@@ -186,9 +214,11 @@ def main() -> int:
         if not directory.is_dir():
             payload = {"ok": False, "error": "directory_not_found", "directory": str(directory)}
         elif args.command == "smoke-test":
-            payload = smoke_test(directory, args.timeout)
+            payload = smoke_test(directory, args.timeout, args.model)
         else:
             payload = invoke_raw(directory, read_prompt(args), args.mode, args.timeout, args.session_id)
+    if args.json:
+        payload = any_to_payload(payload, args.command)
     emit(payload, args.json)
     return 0 if payload.get("ok", payload.get("installed", False)) else 1
 

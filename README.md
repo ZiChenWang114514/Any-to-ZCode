@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(max-width: 680px)" srcset="./assets/readme/hero-mobile.png">
-    <img src="./assets/readme/hero.png" width="100%" alt="Any-to-ZCode: route work from any compatible harness to local ZCode sessions">
+    <source media="(max-width: 680px)" srcset="./assets/readme/hero-mobile.svg">
+    <img src="./assets/readme/hero.svg" width="100%" alt="Any-to-ZCode: route work from any compatible harness to exact ZCode sessions">
   </picture>
 </p>
 
@@ -145,6 +145,10 @@ Do not edit files.
 - The adapter does not commit, push, publish, or alter unrelated files.
 - A successful CLI exit still requires inspection of repository changes and tests.
 
+## Machine-readable contract
+
+Every command accepts `--json`. The shared fields are `schema_version`, `ok`, `target`, `command`, `provider`, `workdir`, `session_id`, `requested_model`, `actual_model`, `result`, `warnings`, and `error`. Adapter-specific evidence remains alongside them.
+
 ## Related adapters
 
 | Repository | Target |
@@ -153,6 +157,8 @@ Do not edit files.
 | [Any-to-Grok-Build](https://github.com/ZiChenWang114514/Any-to-Grok-Build) | Grok Build |
 | [Any-to-Kimi-Code](https://github.com/ZiChenWang114514/Any-to-Kimi-Code) | Kimi Code |
 | [Any-to-DeepSeek-Harness](https://github.com/ZiChenWang114514/Any-to-DeepSeek-Harness) | DeepSeek Harness |
+| [Any-to-Codex](https://github.com/ZiChenWang114514/Any-to-Codex) | Codex CLI |
+| [Any-to-Claude-Code](https://github.com/ZiChenWang114514/Any-to-Claude-Code) | Claude Code |
 
 ## License
 

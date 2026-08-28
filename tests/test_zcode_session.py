@@ -22,6 +22,18 @@ class ZCodeSessionTests(unittest.TestCase):
     def test_empty_config_has_no_credentials(self):
         self.assertFalse(MODULE.configured({}))
 
+    def test_select_main_model(self):
+        config = {"model": {"main": "old", "lite": "lite"}}
+        selected = MODULE.select_main_model(config, "zai/glm-5.3")
+        self.assertEqual(selected["model"]["main"], "zai/glm-5.3")
+        self.assertEqual(selected["model"]["lite"], "lite")
+
+    def test_any_to_payload(self):
+        payload = MODULE.any_to_payload({"ok": True, "main_model": "zai/glm-5.3"}, "status")
+        self.assertEqual(payload["target"], "zcode")
+        self.assertEqual(payload["requested_model"], "zai/glm-5.3")
+        self.assertEqual(payload["warnings"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

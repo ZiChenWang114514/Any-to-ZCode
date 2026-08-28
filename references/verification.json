@@ -1,0 +1,12 @@
+{
+  "verified_at": "2026-08-28T17:16:56+08:00",
+  "cli_version": "3.9.2-16",
+  "runtime_version": "0.16.5",
+  "status": "passed",
+  "models": [
+    "bigmodel/GLM-5.2",
+    "bigmodel/GLM-5.3",
+    "bigmodel/GLM-5.3-Flash"
+  ],
+  "isolated_configuration": true
+}
